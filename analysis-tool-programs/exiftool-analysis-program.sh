@@ -2,19 +2,19 @@
 
 # Create results directory
 #mkdir -p </path/to/output/directory>
-mkdir -p /home/brontomage20/stegcracker_steghide_results_round_2
+mkdir -p /home/brontomage20/exiftool_results
 
 # Gather all JPG/JPEG stego files.
 files=()
 while IFS= read -r -d '' file; do
     files+=("$file")
-done < <(find /home/brontomage20/steghide_stegos_round_2 -maxdepth 1 -type f \( -iname '*.jpg' -o -iname '*.jpeg' \) -print0)
+done < <(find /home/brontomage20/stego_images -maxdepth 1 -type f \( -iname '*.jpg' -o -iname '*.jpeg' \) -print0)
 
 total=${#files[@]}
 total_image_time=0
 
 if [ "$total" -eq 0 ]; then
-    echo "No stego files found in /home/brontomage20/steghide_stegos_round_2"
+    echo "No stego files found in /home/brontomage20/stego_images"
     exit 1
 fi
 
@@ -54,8 +54,8 @@ for img in "${files[@]}"; do
     #get just the file name for the output
     filename=$(basename "$img" | sed 's/\.[^.]*$//')
 
-    outfile="/home/brontomage20/stegcracker_steghide_results_round_2/${filename}.out"
-    logfile="/home/brontomage20/stegcracker_steghide_results_round_2/${filename}_result.txt"
+    outfile="/home/brontomage20/exiftool_results/${filename}.out"
+    logfile="/home/brontomage20/exiftool_results/${filename}_result.txt"
 
     #run stegcracker and save results
     stegcracker "$img" /home/brontomage20/Wordlists/wordlist_updated_no_num.txt -q 2>&1 | tee "$logfile"
@@ -135,7 +135,7 @@ echo "============================"
 echo "Processing complete! Check results in:"
 echo "home directory"
 echo "Summary of successful extractions:"
-# ls -1 /home/brontomage20/stegcracker_steghide_results_round_2/*.out 2>/dev/null | while read file; do
+# ls -1 /home/brontomage20/exiftool_results/*.out 2>/dev/null | while read file; do
 # 	echo "$file"
 # done
 echo "time statistics:"
@@ -148,7 +148,7 @@ echo ""
 echo ""
 echo "summary of successful extractions:"
 successful=0
-for file in /home/brontomage20/stegcracker_steghide_results_round_2/*.out; do
+for file in /home/brontomage20/exiftool_results/*.out; do
 	if [ -f "$file" ] && [ -s "$file" ]; then
 		# echo "[*checkmark*] $file"
 		successful=$((successful + 1))
