@@ -2,19 +2,19 @@
 
 # Create results directory
 #mkdir -p </path/to/output/directory>
-mkdir -p /home/brontomage20/stegcracker_steghide_results_round_2
+mkdir -p /home/brontomage20/binwalk_results
 
 # Gather all JPG/JPEG stego files.
 files=()
 while IFS= read -r -d '' file; do
     files+=("$file")
-done < <(find /home/brontomage20/steghide_stegos_round_2 -maxdepth 1 -type f \( -iname '*.jpg' -o -iname '*.jpeg' \) -print0)
+done < <(find /home/brontomage20/stego_images -maxdepth 1 -type f \( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.bmp' \) -print0)
 
 total=${#files[@]}
 total_image_time=0
 
 if [ "$total" -eq 0 ]; then
-    echo "No stego files found in /home/brontomage20/steghide_stegos_round_2"
+    echo "No stego files found in /home/brontomage20/stego_images"
     exit 1
 fi
 
@@ -54,20 +54,20 @@ for img in "${files[@]}"; do
     #get just the file name for the output
     filename=$(basename "$img" | sed 's/\.[^.]*$//')
 
-    outfile="/home/brontomage20/stegcracker_steghide_results_round_2/${filename}.out"
-    logfile="/home/brontomage20/stegcracker_steghide_results_round_2/${filename}_result.txt"
+    outfile="/home/brontomage20/binwalk_results/${filename}.out"
+    logfile="/home/brontomage20/binwalk_results/${filename}_result.txt"
 
-    #run stegcracker and save results
+    #run binwalker and save results
     stegcracker "$img" /home/brontomage20/Wordlists/wordlist_updated_no_num.txt -q 2>&1 | tee "$logfile"
 
-    # Stegcracker creates the file in the same directory as the input with .out appended
-    stegcracker_output="${img}.out"
+    # Binwalker creates the file in the same directory as the input with .out appended
+    binwalker_output="${img}.out"
 
     #check if a .out file was created (successful crack)
-    if [ -f "$stegcracker_output" ]; then
+    if [ -f "$binwalker_output" ]; then
         echo "Success! Hidden data extracted to: ${filename}.out"
-        cp "$stegcracker_output" "$outfile"
-        rm "$stegcracker_output"
+        cp "$binwalker_output" "$outfile"
+        rm "$binwalker_output"
     fi
 
     #calculate and display time
@@ -79,44 +79,6 @@ for img in "${files[@]}"; do
 
     total_image_time=$((total_image_time + elapsed))
 done
-
-
-
-##process all BMP files found
-#find <folder location> -type f -name '*.bmp' | while read -r img; do
-#   	echo "==="
-#   	echo "Processing: $img"
-#   	echo "==="
-#
-#   	#start timing
-#    	start=$(date +%s)
-#
-#    	#get just the file name for the output
-#   	filename=$(basename "$img")
-#
-#   	outfile="./stegcracker_results_round_2/${filename}.out"
-#   	logfile="./stegcracker_results_round_2/${filename}_result.txt"
-#
-#   	#run stegcracker and save results
-#   	stegcracker "$img" 2>&1 | tee "$logfile"
-#
-#   	#check if a .out file was created (successful crack)
-#   	if [ -f "${img}.out"]; then
-#    	   	echo "Success! Hidden data extracted to: ${img}.out"
-#    	   	cp "${img}.out" "$outfile"
-#    	fi
-#
-#	#calculate and display time
-#	END=$(date +%s)
-#	elapsed=$((END - start))
-#	echo "time taken: ${elapsed} seconds"
-#	echo "==="
-#	echo ""
-#
-#	#update counters
-#	#image_count=$((image_count + 1))
-#	total_image_time=$((total_image_time + elapsed))
-#done
 
 
 #calculate total time and average
@@ -135,7 +97,7 @@ echo "============================"
 echo "Processing complete! Check results in:"
 echo "home directory"
 echo "Summary of successful extractions:"
-# ls -1 /home/brontomage20/stegcracker_steghide_results_round_2/*.out 2>/dev/null | while read file; do
+# ls -1 /home/brontomage20/binwalker_results/*.out 2>/dev/null | while read file; do
 # 	echo "$file"
 # done
 echo "time statistics:"
@@ -148,7 +110,7 @@ echo ""
 echo ""
 echo "summary of successful extractions:"
 successful=0
-for file in /home/brontomage20/stegcracker_steghide_results_round_2/*.out; do
+for file in /home/brontomage20/binwalker_results/*.out; do
 	if [ -f "$file" ] && [ -s "$file" ]; then
 		# echo "[*checkmark*] $file"
 		successful=$((successful + 1))
